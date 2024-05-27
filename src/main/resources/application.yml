@@ -9,8 +9,8 @@ spring:
     username: root
     password: 123456
   # session 失效时间
-  session:
-    timeout: 86400
+#  session:
+#    timeout: 86400
 server:
   port: 8080
   servlet:
