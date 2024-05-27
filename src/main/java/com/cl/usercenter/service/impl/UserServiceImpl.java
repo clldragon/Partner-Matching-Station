@@ -3,6 +3,8 @@ import java.util.Date;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.cl.usercenter.common.ErrorCode;
+import com.cl.usercenter.exception.BusinessException;
 import com.cl.usercenter.model.domain.User;
 import com.cl.usercenter.service.UserService;
 import com.cl.usercenter.mapper.UserMapper;
@@ -39,25 +41,28 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     * 用户注册
     * */
     @Override
-    public long userRegister(String userAccount, String userPassword, String checkPassword) {
+    public long userRegister(String userAccount, String userPassword, String checkPassword,String planetCode) {
         //1.校验
         //非空
-        if (StringUtils.isAnyBlank(userAccount,userPassword,checkPassword)){
-            return -1;
+        if (StringUtils.isAnyBlank(userAccount,userPassword,checkPassword,planetCode)){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"参数为空");
         }
         //账号长度不小于4位
         if (userAccount.length()<4){
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"用户账号过短");
         }
         //密码与校验密码不小于8位
         if (userPassword.length()<8||checkPassword.length()<8){
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"用户密码过短");
         }
-
+        //星球编号不大于5
+        if (planetCode.length()>5){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"星球编号过长");
+        }
         //账户不能包含特殊字符
         Matcher matcher = Pattern.compile(VALIDPATTER).matcher(userAccount);
         if (matcher.find()){
-            return -1;
+           return -1;
         }
         //密码和校验密码相同
         if (!userPassword.equals(checkPassword)){
@@ -68,7 +73,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         queryWrapper.eq("userAccount",userAccount);
         long count = this.count(queryWrapper);
         if (count>0){
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账户重复");
+        }
+        //星球编号不能重复
+       queryWrapper= new QueryWrapper<>();
+       queryWrapper.eq("planetCode",planetCode);
+        Long count1 = userMapper.selectCount(queryWrapper);
+        if (count1>0){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"星球编号重复");
         }
         //2.加密
         String encrptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
@@ -79,6 +91,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         User user = new User();
         user.setUserAccount(userAccount);
         user.setUserPassword(encrptPassword);
+        user.setPlanetCode(planetCode);
         boolean saveResult = this.save(user);
         if (!saveResult){
             return -1;
@@ -95,21 +108,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         //1.校验
         //非空
         if (StringUtils.isAnyBlank(userAccount,userPassword)){
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         //账号长度不小于4位
         if (userAccount.length()<4){
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         //密码与校验密码不小于8位
         if (userPassword.length()<8){
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
 
         //账户不能包含特殊字符
         Matcher matcher = Pattern.compile(VALIDPATTER).matcher(userAccount);
         if (matcher.find()){
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         //2.加密
         String encrptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
@@ -122,7 +135,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         //用户不存在
         if (user==null){
             log.info("user login failed,userAccount cannot match userPassword");
-            return null;
+           throw new BusinessException(ErrorCode.NULL_ERROR);
         }
         //3.用户脱敏
         User safetyUser = getSafetyUser(user);
@@ -137,7 +150,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public User getSafetyUser(User originUser){
         //一定要判空
         if (originUser == null) {
-            return null;
+           throw new BusinessException(ErrorCode.NULL_ERROR);
         }
         User safetyUser = new User();
         safetyUser.setId(originUser.getId());

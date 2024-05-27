@@ -51,7 +51,8 @@ import static org.junit.jupiter.api.Assertions.*;
        String userAccount="cl666";
        String userPassword="xgns8866";
        String checkPassword="xgns8866";
-      long result = userService.userRegister(userAccount, userPassword, checkPassword);
+       String planetCode="5678";
+       long result = userService.userRegister(userAccount, userPassword, checkPassword,planetCode);
       Assertions.assertEquals(-1,result);
    }
 }
