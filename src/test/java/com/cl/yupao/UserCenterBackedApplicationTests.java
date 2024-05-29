@@ -1,4 +1,4 @@
-package com.cl.usercenter;
+package com.cl.yupao;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

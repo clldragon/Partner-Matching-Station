@@ -1,4 +1,4 @@
-package com.cl.usercenter.common;
+package com.cl.yupao.common;
 
 /**
  * 错误码

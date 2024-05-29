@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.itcl</groupId>
-    <artifactId>user-center-backed</artifactId>
+    <artifactId>yupao-backed</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>user-center-backed</name>
-    <description>user-center-backed</description>
+    <name>yupao-backed</name>
+    <description>yupao-backed</description>
     <properties>
         <java.version>17</java.version>
     </properties>

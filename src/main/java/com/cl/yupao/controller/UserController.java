@@ -1,27 +1,25 @@
-package com.cl.usercenter.controller;
+package com.cl.yupao.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.cl.usercenter.common.BaseResponse;
-import com.cl.usercenter.common.ErrorCode;
-import com.cl.usercenter.common.ResultUtils;
-import com.cl.usercenter.contant.UserContant;
-import com.cl.usercenter.exception.BusinessException;
-import com.cl.usercenter.model.domain.User;
-import com.cl.usercenter.model.domain.request.UserLoginRequest;
-import com.cl.usercenter.model.domain.request.UserRegisterRequest;
-import com.cl.usercenter.service.UserService;
+import com.cl.yupao.common.BaseResponse;
+import com.cl.yupao.common.ErrorCode;
+import com.cl.yupao.common.ResultUtils;
+import com.cl.yupao.exception.BusinessException;
+import com.cl.yupao.model.domain.User;
+import com.cl.yupao.model.domain.request.UserLoginRequest;
+import com.cl.yupao.model.domain.request.UserRegisterRequest;
+import com.cl.yupao.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.cl.usercenter.contant.UserContant.ADMIN_ROLE;
-import static com.cl.usercenter.contant.UserContant.USER_LOGIN_STATE;
+import static com.cl.yupao.contant.UserContant.ADMIN_ROLE;
+import static com.cl.yupao.contant.UserContant.USER_LOGIN_STATE;
 
 /**
  * 用户接口
@@ -30,6 +28,7 @@ import static com.cl.usercenter.contant.UserContant.USER_LOGIN_STATE;
  */
 @RestController
 @RequestMapping("/user")
+@Slf4j
 public class UserController {
     @Resource
     private UserService userService;
@@ -119,7 +118,7 @@ public class UserController {
     /*
     * 删除用户
     * */
-    @PostMapping("/delete")
+    @GetMapping("/delete")
     public BaseResponse<Boolean> deleteUser(@RequestBody long id,HttpServletRequest request){
       if (!isAdmin(request)){
           throw new BusinessException(ErrorCode.NO_AUTH);
@@ -129,6 +128,19 @@ public class UserController {
         }
         boolean b = userService.removeById(id);
         return ResultUtils.success(b);
+    }
+
+    /*
+    * 启用，禁用用户 0-启用 1-禁用
+    * */
+    @PostMapping("status/{status}")
+    public BaseResponse  startOrStop(@PathVariable Integer status,Long id,HttpServletRequest request){
+        if (!isAdmin(request)){
+            throw new BusinessException(ErrorCode.NO_AUTH);
+        }
+        log.info("启用禁用用户账号，{} {}",status,id);
+        userService.startOrStop(status, id);
+        return ResultUtils.success();
     }
 
     /*

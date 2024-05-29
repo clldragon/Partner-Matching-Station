@@ -1,6 +1,6 @@
-package com.cl.usercenter.service;
+package com.cl.yupao.service;
 
-import com.cl.usercenter.model.domain.User;
+import com.cl.yupao.model.domain.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -46,4 +46,8 @@ public interface UserService extends IService<User> {
 
     int userLogout(HttpServletRequest request);
 
+    /*
+    * 启用和禁用用户
+    * */
+    Integer startOrStop(Integer userStatus, Long id);
 }

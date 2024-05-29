@@ -1,6 +1,6 @@
-package com.cl.usercenter.exception;
+package com.cl.yupao.exception;
 
-import com.cl.usercenter.common.ErrorCode;
+import com.cl.yupao.common.ErrorCode;
 
 /*
 * 自定义异常类

@@ -1,6 +1,6 @@
-package com.cl.usercenter.mapper;
+package com.cl.yupao.mapper;
 
-import com.cl.usercenter.model.domain.User;
+import com.cl.yupao.model.domain.User;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**

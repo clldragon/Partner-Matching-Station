@@ -1,15 +1,11 @@
-package com.cl.usercenter.service;
-import java.util.Date;
+package com.cl.yupao.service;
 
-import com.cl.usercenter.model.domain.User;
+import com.cl.yupao.model.domain.User;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
-
-import static org.junit.jupiter.api.Assertions.*;
 /*
 * 用户服务测试
 * */
@@ -54,5 +50,13 @@ import static org.junit.jupiter.api.Assertions.*;
        String planetCode="5678";
        long result = userService.userRegister(userAccount, userPassword, checkPassword,planetCode);
       Assertions.assertEquals(-1,result);
+   }
+
+   @Test
+    void tsetStatus(){
+    int status=1;
+    Long id= 11L;
+       Integer i = userService.startOrStop(status, id);
+       Assertions.assertEquals(1,i);
    }
 }

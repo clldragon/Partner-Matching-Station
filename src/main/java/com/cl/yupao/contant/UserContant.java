@@ -1,4 +1,4 @@
-package com.cl.usercenter.contant;
+package com.cl.yupao.contant;
 
 /*
 * 用户常量

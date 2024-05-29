@@ -1,4 +1,4 @@
-package com.cl.usercenter.common;
+package com.cl.yupao.common;
 
 /*
 *返回工具类
@@ -15,6 +15,13 @@ public class ResultUtils {
     public static <T> BaseResponse<T> success(T data) {
         return new BaseResponse<>(0, data, "ok");
     }
+
+    /**
+     * 成功
+     * @return
+     * @param <T>
+     */
+    public static <T>BaseResponse<T>success(){return new BaseResponse<>(ErrorCode.SUCCESS);};
 
     /**
      * 失败

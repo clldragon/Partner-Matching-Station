@@ -1,8 +1,8 @@
-package com.cl.usercenter.exception;
+package com.cl.yupao.exception;
 
-import com.cl.usercenter.common.BaseResponse;
-import com.cl.usercenter.common.ErrorCode;
-import com.cl.usercenter.common.ResultUtils;
+import com.cl.yupao.common.BaseResponse;
+import com.cl.yupao.common.ErrorCode;
+import com.cl.yupao.common.ResultUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;

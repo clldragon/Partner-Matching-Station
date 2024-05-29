@@ -1,13 +1,13 @@
-package com.cl.usercenter.service.impl;
-import java.util.Date;
+package com.cl.yupao.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.cl.usercenter.common.ErrorCode;
-import com.cl.usercenter.exception.BusinessException;
-import com.cl.usercenter.model.domain.User;
-import com.cl.usercenter.service.UserService;
-import com.cl.usercenter.mapper.UserMapper;
+import com.cl.yupao.common.ErrorCode;
+import com.cl.yupao.exception.BusinessException;
+import com.cl.yupao.model.domain.User;
+import com.cl.yupao.service.UserService;
+import com.cl.yupao.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.cl.usercenter.contant.UserContant.USER_LOGIN_STATE;
+import static com.cl.yupao.contant.UserContant.USER_LOGIN_STATE;
 
 /**
 * @author 陈
@@ -166,6 +166,28 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         safetyUser.setPlanetCode(originUser.getPlanetCode());
         return safetyUser;
     }
+    /*
+    * 启用和禁用用户
+    * */
+    @Override
+    public Integer startOrStop(Integer userStatus, Long id) {
+        //判断用户是否存在
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("Id",id);
+        User user = userMapper.selectOne(queryWrapper);
+        //用户不存在
+        if (user==null){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("id",id);
+        updateWrapper.set("userStatus",userStatus);
+        int result = userMapper.update(updateWrapper);
+
+        return result;
+    }
+
+
 
     /**
      * 用户注销
@@ -178,6 +200,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         request.getSession().removeAttribute(USER_LOGIN_STATE);
         return 1;
     }
+
+    
 }
 
 
