@@ -4,6 +4,7 @@ import com.cl.yupao.model.domain.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
 * @author 陈
@@ -46,8 +47,48 @@ public interface UserService extends IService<User> {
 
     int userLogout(HttpServletRequest request);
 
-    /*
-    * 启用和禁用用户
-    * */
+    /**
+     * 启用和禁用用户
+     * @param userStatus
+     * @param id
+     * @return
+     */
     Integer startOrStop(Integer userStatus, Long id);
+
+    /**
+     * 根据标签搜索用户
+     * @param tagsNameList
+     * @return
+     */
+    List<User> searchUserByTags(List<String> tagsNameList);
+
+    /**
+     * 更新用户信息表
+     *
+     * @param user
+     * @param loginUser
+     * @return
+     */
+    int updateUser(User user, User loginUser);
+
+    /**
+     * 获取当前登录信息
+     * @param request
+     * @return
+     */
+    User getLoginUser(HttpServletRequest request);
+
+    /**
+     * 是否为管理员
+     * @param request
+     * @return
+     */
+     boolean isAdmin(HttpServletRequest request);
+
+    /**
+     * 是否为管理员
+     * @param loginUser
+     * @return
+     */
+     boolean isAdmin(User loginUser);
 }

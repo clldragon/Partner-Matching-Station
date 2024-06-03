@@ -11,6 +11,7 @@ import com.cl.yupao.model.domain.request.UserRegisterRequest;
 import com.cl.yupao.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -29,6 +30,7 @@ import static com.cl.yupao.contant.UserContant.USER_LOGIN_STATE;
 @RestController
 @RequestMapping("/user")
 @Slf4j
+@CrossOrigin
 public class UserController {
     @Resource
     private UserService userService;
@@ -103,7 +105,7 @@ public class UserController {
     * */
     @GetMapping("/search")
     public BaseResponse<List<User>> searchUsers(String username,HttpServletRequest request){
-       if (!isAdmin(request)){
+       if (!userService.isAdmin(request)){
           throw new BusinessException(ErrorCode.NO_AUTH);
        }
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
@@ -114,13 +116,37 @@ public class UserController {
         List<User> list = userList.stream().map(user -> userService.getSafetyUser(user)).collect(Collectors.toList());
         return ResultUtils.success(list);
     }
+    /*
+    * 根据标签搜索用户
+    * */
+    @GetMapping("/search/tags")
+    public BaseResponse<List<User>> searchUsersByTags(@RequestParam(required = false) List<String>tagNameList){
+        if (CollectionUtils.isEmpty(tagNameList)){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        List<User> userList = userService.searchUserByTags(tagNameList);
+        return ResultUtils.success(userList);
+    }
+   /*
+   * 更新用户信息表
+   * */
+    @PostMapping("/update")
+    public BaseResponse<Integer> updateUser(@RequestBody User user,HttpServletRequest request){
+        if (user == null){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        //获取当前登录信息
+        User loginUser = userService.getLoginUser(request);
+        int updated = userService.updateUser(user,loginUser);
+        return ResultUtils.success(updated);
+    }
 
     /*
     * 删除用户
     * */
     @GetMapping("/delete")
     public BaseResponse<Boolean> deleteUser(@RequestBody long id,HttpServletRequest request){
-      if (!isAdmin(request)){
+      if (!userService.isAdmin(request)){
           throw new BusinessException(ErrorCode.NO_AUTH);
       }
         if (id<=0){
@@ -135,25 +161,12 @@ public class UserController {
     * */
     @PostMapping("status/{status}")
     public BaseResponse  startOrStop(@PathVariable Integer status,Long id,HttpServletRequest request){
-        if (!isAdmin(request)){
+        if (!userService.isAdmin(request)){
             throw new BusinessException(ErrorCode.NO_AUTH);
         }
         log.info("启用禁用用户账号，{} {}",status,id);
         userService.startOrStop(status, id);
         return ResultUtils.success();
-    }
-
-    /*
-    * 是否为管理员
-    * */
-    private static boolean isAdmin(HttpServletRequest request) {
-        //仅管理员可以查询
-        Object userobj = request.getSession().getAttribute(USER_LOGIN_STATE);
-        User user=(User) userobj;
-        if (user==null||user.getUserRole()!= ADMIN_ROLE){
-            return false;
-        }
-        return true;
     }
 
 }
