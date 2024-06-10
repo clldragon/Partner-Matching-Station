@@ -5,9 +5,9 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cl.yupao.common.ErrorCode;
 import com.cl.yupao.exception.BusinessException;
+import com.cl.yupao.mapper.UserMapper;
 import com.cl.yupao.model.domain.User;
 import com.cl.yupao.service.UserService;
-import com.cl.yupao.mapper.UserMapper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
@@ -15,11 +15,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -349,7 +351,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         List<User> users = userMapper.selectList(queryWrapper);
         List<User> safeUserList = users.stream().map(this::getSafetyUser).collect(Collectors.toList());
-
         return safeUserList;
     }
 
