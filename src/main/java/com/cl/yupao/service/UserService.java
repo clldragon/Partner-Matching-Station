@@ -91,4 +91,12 @@ public interface UserService extends IService<User> {
      * @return
      */
      boolean isAdmin(User loginUser);
+
+    /**
+     * 根据标签（相似度）匹配用户
+     * @param number
+     * @param loginUser
+     * @return
+     */
+    List<User> matchUsers(Long number, User loginUser);
 }

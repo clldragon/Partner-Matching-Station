@@ -60,5 +60,9 @@ public class TeamUserVo {
     * */
    private UserVo CreateUser;
 
+    /**
+     * 是否已加入队伍
+     */
+    private boolean hasJoin = false;
 
 }

@@ -151,6 +151,22 @@ public class UserController {
         return ResultUtils.success(userPage);
     }
 
+    /**
+     * 根据标签（相似度）匹配用户
+     * @param number
+     * @param request
+     * @return
+     */
+    @GetMapping("/match")
+    public BaseResponse<List<User>> matchUsers(Long number ,HttpServletRequest request){
+        if (number<=0 ||number>20){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        List<User> userList=userService.matchUsers(number,loginUser);
+        return ResultUtils.success(userList);
+    }
+
     /*
     * 根据标签搜索用户
     * */
@@ -203,5 +219,8 @@ public class UserController {
         userService.startOrStop(status, id);
         return ResultUtils.success();
     }
+
+   // @GetMapping("/match")
+  //  public BaseResponse
 
 }

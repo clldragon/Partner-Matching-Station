@@ -8,20 +8,19 @@ import com.cl.yupao.exception.BusinessException;
 import com.cl.yupao.mapper.UserMapper;
 import com.cl.yupao.model.domain.User;
 import com.cl.yupao.service.UserService;
+import com.cl.yupao.utils.AlgorithmUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -251,7 +250,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             }
             Set<String> TempTagNameSet = gson.fromJson(tagStr, new TypeToken<Set<String>>() {
             }.getType());
-            //这里也需要判空
+            //1. 使用Gson库中的fromJson方法将tagStr字符串解析为Set<String>类型的对象。
+            //2. 使用TypeToken类的匿名子类来指定要解析的数据类型为Set<String>。
+            //3. 调用getType()方法获取TypeToken对象的类型。
+            //4. 将tagStr字符串转换为Set<String>类型的TempTagNameSet对象。
+
           TempTagNameSet = Optional.ofNullable(TempTagNameSet).orElse(new HashSet<>());
             for (String tagsName : tagsNameList) {
                 if (!TempTagNameSet.contains(tagsName)) {
@@ -332,6 +335,62 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public boolean isAdmin(User loginUser) {
         return loginUser!=null && loginUser.getUserRole()== ADMIN_ROLE;
+    }
+
+    /**
+     * 根据标签（相似度）匹配用户
+     * @param number
+     * @param loginUser
+     * @return
+     */
+    @Override
+    public List<User> matchUsers(Long number, User loginUser) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select("id","tags");
+        queryWrapper.isNotNull("tags");
+        List<User> userList = this.list(queryWrapper);
+        Long userId = loginUser.getId();
+        String tags = loginUser.getTags();
+        Gson gson = new Gson();
+       List<String> tagsList = gson.fromJson(tags, new TypeToken<List<String>>() {
+        }.getType());
+       //创建用户列表下标=》相似值
+        List<Pair<User, Long>> list = new ArrayList<>();
+        //将当前用户与其他用户计算
+        for (int i = 0; i < userList.size(); i++) {
+            User user = userList.get(i);
+            String userTags = user.getTags();
+            if (StringUtils.isBlank(userTags)||user.getId().equals(userId)){
+                continue;
+            }
+            List<String> userTagsList = gson.fromJson(userTags, new TypeToken<List<String>>() {
+            }.getType());
+            //计算分数
+            long distance =AlgorithmUtils.minDistance(tagsList, userTagsList);
+            list.add(new Pair<>(user,distance));
+        }
+        //按编辑距离从小到大排序
+        List<Pair<User, Long>> topUserPairList = list.stream().sorted((a, b) -> (int) (a.getValue() - b.getValue()))
+                .limit(number)
+                .collect(Collectors.toList());
+        //按顺序的UserIdList
+        List<Long> userIdList = topUserPairList.stream().map(pair -> pair.getKey().getId())
+                .collect(Collectors.toList());
+        //根据id查询用户
+        QueryWrapper<User> querywrapper = new QueryWrapper<>();
+        querywrapper.in("id",userIdList);
+        List<User> oldUserList = this.list(querywrapper);
+        //in查询是没有顺序的，所以将其存储在Map中
+        // 1, 3, 2
+        // User1、User2、User3
+        // 1 => User1, 2 => User2, 3 => User3
+        Map<Long, List<User>> userIdUserListMap = oldUserList.stream().map(user -> getSafetyUser(user))
+                .collect(Collectors.groupingBy(User::getId));
+        List<User>finalUserList=new ArrayList<>();
+        for (Long id : userIdList) {
+            finalUserList.add(userIdUserListMap.get(id).get(0));
+        }
+        return finalUserList;
     }
 
     /**

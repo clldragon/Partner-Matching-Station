@@ -74,6 +74,7 @@ import java.util.List;
     void testTags(){
         List<String> tagNameList= Arrays.asList("java","python");
         List<User> users = userService.searchUserByTags(tagNameList);
+        System.out.println(users);
         Assertions.assertNotNull(users);
     }
 }
