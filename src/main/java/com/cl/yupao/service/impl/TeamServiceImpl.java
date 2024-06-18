@@ -96,7 +96,6 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "当前时间>超时时间");
         }
         //   7. 校验用户最多创建5个队伍
-        // todo 有 bug，可能同时创建 100 个队伍
         QueryWrapper<Team> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userId", userId);
         long hasTeamNum = count(queryWrapper);

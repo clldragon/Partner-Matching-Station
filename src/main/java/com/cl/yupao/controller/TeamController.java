@@ -195,7 +195,6 @@ public class TeamController {
         return ResultUtils.success(teamList);
     }
 
-    //todo 查询分页
 
     /**
      * 分页查询
