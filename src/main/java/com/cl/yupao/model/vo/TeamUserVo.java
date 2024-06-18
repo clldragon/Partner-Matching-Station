@@ -60,6 +60,11 @@ public class TeamUserVo {
     * */
    private UserVo CreateUser;
 
+   /*
+   * 加入队伍人数
+   * */
+   private Integer hasJoinNum;
+
     /**
      * 是否已加入队伍
      */
